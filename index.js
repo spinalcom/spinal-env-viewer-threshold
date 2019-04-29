@@ -1,12 +1,14 @@
 import "./js/registerDialog";
-// import {
-//   spinalContextMenuService
-// } from 'spinal-env-viewer-context-menu-service';
 
-// import ConfigThreshold from './buttons/configThreshold'
-
-// const SIDEBAR = "GraphManagerSideBar";
-
+import {
+  RELATION_NAME,
+  thresholdService,
+  ENDPOINT_RELATION
+} from "./js/service"
 
 
-// spinalContextMenuService.registerApp(SIDEBAR, new ConfigThreshold())
+export {
+  RELATION_NAME,
+  thresholdService,
+  ENDPOINT_RELATION
+}
