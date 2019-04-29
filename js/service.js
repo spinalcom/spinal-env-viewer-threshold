@@ -57,7 +57,9 @@ let thresholdService = {
 export {
   RELATION_NAME,
   thresholdService,
-  ENDPOINT_RELATION
+  ENDPOINT_RELATION,
+  ENDPOINT_CONTEXT_NAME
+
 }
 
 export default thresholdService;
