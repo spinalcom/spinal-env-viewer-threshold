@@ -6,8 +6,10 @@ import ThresholdModel from "./threshold.model";
 
 
 const RELATION_NAME = "hasThreshold";
+const ENDPOINT_CONTEXT_NAME = ".EndpointThreshold";
+const ENDPOINT_RELATION = "hasEndpoint";
 
-export default {
+let thresholdService = {
 
   createThreshold(nodeId, minValue, maxValue) {
     let threshold = new ThresholdModel(minValue, maxValue);
@@ -19,7 +21,7 @@ export default {
 
     SpinalGraphService.addChild(nodeId, thresholdNode, RELATION_NAME,
       SPINAL_RELATION_PTR_LST_TYPE);
-
+    this.createContext(nodeId);
     return threshold;
 
   },
@@ -33,6 +35,29 @@ export default {
           return this.createThreshold(nodeId);
         }
       })
+  },
+  async createContext(nodeId) {
+    let context = await SpinalGraphService.getContext(
+      ENDPOINT_CONTEXT_NAME);
+
+
+    if (typeof context === "undefined") {
+      context = await SpinalGraphService.addContext(
+        ENDPOINT_CONTEXT_NAME)
+    }
+
+    SpinalGraphService.addChild(context.info.id.get(), nodeId,
+      ENDPOINT_RELATION, SPINAL_RELATION_PTR_LST_TYPE);
+
+
   }
 
 }
+
+export {
+  RELATION_NAME,
+  thresholdService,
+  ENDPOINT_RELATION
+}
+
+export default thresholdService;
