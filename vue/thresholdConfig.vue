@@ -58,7 +58,7 @@
 
 
 <script>
-import thresholdService from "../js/service";
+import thresholdService from "../dist/service";
 
 export default {
   name: "thresholdConfigDialog",

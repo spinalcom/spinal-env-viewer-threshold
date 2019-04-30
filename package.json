@@ -18,6 +18,7 @@
     "spinal-env-viewer-context-geographic-service": "git+https://github.com/spinalcom/spinal-env-viewer-context-geographic-service.git",
     "spinal-core-connectorjs_type": "git+https://github.com/spinalcom/spinal-core-connectorjs_type.git"
   },
+  "types": "dist/service.d.ts",
   "browserify": {
     "transform": [
       "vueify",
