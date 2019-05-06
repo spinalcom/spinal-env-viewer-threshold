@@ -18,14 +18,18 @@ const ENDPOINT_RELATION = "hasEndpoint";
 exports.ENDPOINT_RELATION = ENDPOINT_RELATION;
 let thresholdService = {
     createThreshold(nodeId, minValue, maxValue) {
-        let threshold = new threshold_model_1.default(minValue, maxValue);
-        let thresholdNode = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode({
-            name: "threshold",
-            type: "threshold"
-        }, threshold);
-        spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(nodeId, thresholdNode, RELATION_NAME, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
-        this.createContext(nodeId);
-        return threshold;
+        return this.getThreshold(nodeId).then(threshold => {
+            if (threshold)
+                return threshold;
+            let newThreshold = new threshold_model_1.default(minValue, maxValue);
+            let thresholdNode = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode({
+                name: "threshold",
+                type: "threshold"
+            }, newThreshold);
+            spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(nodeId, thresholdNode, RELATION_NAME, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
+            this.createOrGetContext(nodeId);
+            return newThreshold;
+        });
     },
     getThreshold(nodeId) {
         return spinal_env_viewer_graph_service_1.SpinalGraphService.getChildren(nodeId, [RELATION_NAME]).then((children) => __awaiter(this, void 0, void 0, function* () {
@@ -34,17 +38,43 @@ let thresholdService = {
                 return threshold;
             }
             else {
-                return this.createThreshold(nodeId);
+                return undefined;
+                // return this.createThreshold(nodeId);
             }
         }));
     },
-    createContext(nodeId) {
+    createOrGetContext(nodeId) {
         return __awaiter(this, void 0, void 0, function* () {
             let context = yield spinal_env_viewer_graph_service_1.SpinalGraphService.getContext(ENDPOINT_CONTEXT_NAME);
             if (typeof context === "undefined") {
                 context = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addContext(ENDPOINT_CONTEXT_NAME);
             }
-            spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(context.info.id.get(), nodeId, ENDPOINT_RELATION, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
+            return context;
+        });
+    },
+    addEndpointToContext(contextId, nodeId) {
+        return spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(contextId, nodeId, ENDPOINT_RELATION, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
+    },
+    updateThreshold(nodeId, threshold) {
+        this.createThreshold(nodeId).then(thresholdToUpdate => {
+            // update min
+            if (threshold.min.activated) {
+                thresholdToUpdate.activateMin();
+                thresholdToUpdate.setMinValue(threshold.min.value);
+            }
+            else {
+                thresholdToUpdate.disableMin();
+            }
+            // end update min
+            //update max
+            if (threshold.max.activated) {
+                thresholdToUpdate.activateMax();
+                thresholdToUpdate.setMaxValue(threshold.max.value);
+            }
+            else {
+                thresholdToUpdate.disableMax();
+            }
+            //end update max
         });
     }
 };

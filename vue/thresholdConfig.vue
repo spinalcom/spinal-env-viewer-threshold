@@ -59,12 +59,13 @@
 
 <script>
 import thresholdService from "../dist/service";
+import ThresholdModel from "../dist/threshold.model";
 
 export default {
   name: "thresholdConfigDialog",
   props: ["onFinised"],
   data() {
-    this.globalThreshold = null;
+    // this.globalThreshold = null;
     return {
       showDialog: true,
       nodeItem: null,
@@ -73,33 +74,26 @@ export default {
   },
   methods: {
     opened(node) {
+      console.log(node);
+
       this.nodeItem = node;
       thresholdService.getThreshold(this.nodeItem.id.get()).then(threshold => {
-        this.globalThreshold = threshold;
-        this.threshold = threshold.get();
-        console.log(this.threshold);
+        if (threshold) {
+          // this.globalThreshold = threshold;
+          this.threshold = threshold.get();
+        } else {
+          let t = new ThresholdModel(10, 30);
+          this.threshold = t.get();
+        }
       });
     },
 
     removed(closeResult) {
       if (closeResult) {
-        // update min
-        if (this.threshold.min.activated) {
-          this.globalThreshold.activateMin();
-          this.globalThreshold.setMinValue(this.threshold.min.value);
-        } else {
-          this.globalThreshold.disableMin();
-        }
-        // end update min
-
-        //update max
-        if (this.threshold.max.activated) {
-          this.globalThreshold.activateMax();
-          this.globalThreshold.setMaxValue(this.threshold.max.value);
-        } else {
-          this.globalThreshold.disableMax();
-        }
-        //end update max
+        thresholdService.updateThreshold(
+          this.nodeItem.id.get(),
+          this.threshold
+        );
       }
       this.showDialog = false;
     },
