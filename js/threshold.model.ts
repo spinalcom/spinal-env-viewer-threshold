@@ -1,7 +1,4 @@
-import {
-  spinalCore,
-  Model
-} from "spinal-core-connectorjs_type";
+import { spinalCore, Model } from "spinal-core-connectorjs_type";
 
 import Guuid from "./guuid";
 
@@ -11,11 +8,11 @@ export default class ThresholdModel extends Model {
     this.add_attr({
       id: Guuid("Threshold"),
       min: {
-        activated: true,
+        activated: false,
         value: typeof minValue === "undefined" ? 0 : minValue
       },
       max: {
-        activated: true,
+        activated: false,
         value: typeof maxValue === "undefined" ? 0 : maxValue
       }
     });

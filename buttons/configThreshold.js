@@ -14,7 +14,7 @@ import geographicService from "spinal-env-viewer-context-geographic-service";
 
 class ConfigThreshold extends SpinalContextApp {
   constructor() {
-    super("Config Threashold", "Config Threashold", {
+    super("Config Threshold", "Config Threshold", {
       icon: "low_priority",
       icon_type: "in",
       backgroundColor: "#FF0000",

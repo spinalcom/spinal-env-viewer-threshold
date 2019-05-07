@@ -1,16 +1,14 @@
+const {
+  spinalContextMenuService
+} = require("spinal-env-viewer-context-menu-service");
+
 import "./js/registerDialog";
-
-// import {
-//   RELATION_NAME,
-//   thresholdService,
-//   ENDPOINT_RELATION,
-//   ENDPOINT_CONTEXT_NAME
-// } from "./js/service"
+import GlobalThresholdConfig from "./buttons/globalThresholdConfig";
 
 
-// export {
-//   RELATION_NAME,
-//   thresholdService,
-//   ENDPOINT_RELATION,
-//   ENDPOINT_CONTEXT_NAME
-// }
+const HeaderBarName = "GraphManagerTopBar";
+
+
+
+spinalContextMenuService.registerApp(HeaderBarName,
+  new GlobalThresholdConfig());
