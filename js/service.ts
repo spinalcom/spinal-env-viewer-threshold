@@ -31,12 +31,7 @@ let thresholdService = {
         newThreshold
       );
 
-      return SpinalGraphService.addChild(
-        nodeId,
-        thresholdNode,
-        RELATION_NAME,
-        SPINAL_RELATION_PTR_LST_TYPE
-      ).then(() => {
+      return this._addThreshold(nodeId, thresholdNode).then(() => {
         this.addEndpointToContext(nodeId);
         return newThreshold;
       });
@@ -77,9 +72,10 @@ let thresholdService = {
             if (elementId === nodeId) return;
           }
 
-          return SpinalGraphService.addChild(
+          return SpinalGraphService.addChildInContext(
             contextId,
             nodeId,
+            contextId,
             ENDPOINT_RELATION,
             SPINAL_RELATION_PTR_LST_TYPE
           );
@@ -143,6 +139,27 @@ let thresholdService = {
     }
 
     return false;
+  },
+
+  _addThreshold(nodeId: string, thresholdNode: string): Promise<boolean> {
+    let context = SpinalGraphService.getContext(ENDPOINT_CONTEXT_NAME);
+    if (context) {
+      let contextId = context.info.id.get();
+      return SpinalGraphService.addChildInContext(
+        nodeId,
+        thresholdNode,
+        contextId,
+        RELATION_NAME,
+        SPINAL_RELATION_PTR_LST_TYPE
+      );
+    } else {
+      return SpinalGraphService.addChild(
+        nodeId,
+        thresholdNode,
+        RELATION_NAME,
+        SPINAL_RELATION_PTR_LST_TYPE
+      );
+    }
   }
 };
 

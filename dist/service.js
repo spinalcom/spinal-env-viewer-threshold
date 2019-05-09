@@ -30,7 +30,7 @@ let thresholdService = {
                 name: "threshold",
                 type: "threshold"
             }, newThreshold);
-            return spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(nodeId, thresholdNode, RELATION_NAME, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE).then(() => {
+            return this._addThreshold(nodeId, thresholdNode).then(() => {
                 this.addEndpointToContext(nodeId);
                 return newThreshold;
             });
@@ -66,7 +66,7 @@ let thresholdService = {
                     if (elementId === nodeId)
                         return;
                 }
-                return spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(contextId, nodeId, ENDPOINT_RELATION, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
+                return spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(contextId, nodeId, contextId, ENDPOINT_RELATION, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
             });
         });
     },
@@ -114,6 +114,16 @@ let thresholdService = {
             return true;
         }
         return false;
+    },
+    _addThreshold(nodeId, thresholdNode) {
+        let context = spinal_env_viewer_graph_service_1.SpinalGraphService.getContext(ENDPOINT_CONTEXT_NAME);
+        if (context) {
+            let contextId = context.info.id.get();
+            return spinal_env_viewer_graph_service_1.SpinalGraphService.addChildInContext(nodeId, thresholdNode, contextId, RELATION_NAME, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
+        }
+        else {
+            return spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(nodeId, thresholdNode, RELATION_NAME, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
+        }
     }
 };
 exports.thresholdService = thresholdService;

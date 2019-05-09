@@ -12,6 +12,7 @@ declare let thresholdService: {
     createOrGetThresholdGroupContext(): Promise<spinal.Model>;
     createThresholdGroup(threshold: any): void;
     _isValidThreshold(threshold: any): boolean;
+    _addThreshold(nodeId: string, thresholdNode: string): Promise<boolean>;
 };
 export { RELATION_NAME, thresholdService, ENDPOINT_RELATION, THRESHOLD_GROUP_CONTEXT, ENDPOINT_CONTEXT_NAME };
 export default thresholdService;
