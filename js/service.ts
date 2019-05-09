@@ -7,6 +7,7 @@ import ThresholdModel from "./threshold.model";
 const RELATION_NAME = "hasThreshold";
 const ENDPOINT_CONTEXT_NAME = ".EndpointThreshold";
 const ENDPOINT_RELATION = "hasEndpoint";
+const THRESHOLD_GROUP_CONTEXT = ".ThresholdGroupContext";
 
 let thresholdService = {
   createThreshold(
@@ -14,8 +15,11 @@ let thresholdService = {
     minValue?: number,
     maxValue?: number
   ): Promise<ThresholdModel> {
-    return this.getThreshold(nodeId).then(threshold => {
-      if (threshold) return threshold;
+    return this.getThreshold(nodeId).then(async threshold => {
+      if (threshold) {
+        this.addEndpointToContext(nodeId);
+        return threshold;
+      }
 
       let newThreshold = new ThresholdModel(minValue, maxValue);
 
@@ -27,14 +31,15 @@ let thresholdService = {
         newThreshold
       );
 
-      SpinalGraphService.addChild(
+      return SpinalGraphService.addChild(
         nodeId,
         thresholdNode,
         RELATION_NAME,
         SPINAL_RELATION_PTR_LST_TYPE
-      );
-      this.createOrGetContext(nodeId);
-      return newThreshold;
+      ).then(() => {
+        this.addEndpointToContext(nodeId);
+        return newThreshold;
+      });
     });
   },
   getThreshold(nodeId): Promise<any> {
@@ -50,7 +55,8 @@ let thresholdService = {
       }
     );
   },
-  async createOrGetContext(nodeId: string): Promise<spinal.Model> {
+
+  async createOrGetContext(): Promise<spinal.Model> {
     let context = await SpinalGraphService.getContext(ENDPOINT_CONTEXT_NAME);
 
     if (typeof context === "undefined") {
@@ -60,16 +66,31 @@ let thresholdService = {
     return context;
   },
 
-  addEndpointToContext(contextId: string, nodeId: string): Promise<boolean> {
-    return SpinalGraphService.addChild(
-      contextId,
-      nodeId,
-      ENDPOINT_RELATION,
-      SPINAL_RELATION_PTR_LST_TYPE
-    );
+  addEndpointToContext(nodeId: string): Promise<boolean> {
+    return this.createOrGetContext().then(context => {
+      let contextId = context.info.id.get();
+
+      SpinalGraphService.getChildren(contextId, [ENDPOINT_RELATION]).then(
+        res => {
+          for (let index = 0; index < res.length; index++) {
+            const elementId = res[index].id.get();
+            if (elementId === nodeId) return;
+          }
+
+          return SpinalGraphService.addChild(
+            contextId,
+            nodeId,
+            ENDPOINT_RELATION,
+            SPINAL_RELATION_PTR_LST_TYPE
+          );
+        }
+      );
+    });
   },
 
   updateThreshold(nodeId: string, threshold: any): void {
+    if (!this._isValidThreshold(threshold)) throw "Threshold params not valid";
+
     this.createThreshold(nodeId).then(thresholdToUpdate => {
       // update min
       if (threshold.min.activated) {
@@ -89,6 +110,39 @@ let thresholdService = {
       }
       //end update max
     });
+  },
+
+  createOrGetThresholdGroupContext(): Promise<spinal.Model> {
+    return SpinalGraphService.getContext(THRESHOLD_GROUP_CONTEXT).then(
+      async context => {
+        if (typeof context !== "undefined") return context;
+
+        let temp_context = await SpinalGraphService.addContext(
+          THRESHOLD_GROUP_CONTEXT
+        );
+        return temp_context;
+      }
+    );
+  },
+
+  createThresholdGroup(threshold: any): void {},
+
+  _isValidThreshold(threshold: any): boolean {
+    let minIsValid =
+      threshold.hasOwnProperty("min") &&
+      threshold.min.hasOwnProperty("value") &&
+      threshold.min.hasOwnProperty("activated");
+
+    let maxIsValid =
+      threshold.hasOwnProperty("max") &&
+      threshold.max.hasOwnProperty("value") &&
+      threshold.max.hasOwnProperty("activated");
+
+    if (minIsValid && maxIsValid) {
+      return true;
+    }
+
+    return false;
   }
 };
 
@@ -96,6 +150,7 @@ export {
   RELATION_NAME,
   thresholdService,
   ENDPOINT_RELATION,
+  THRESHOLD_GROUP_CONTEXT,
   ENDPOINT_CONTEXT_NAME
 };
 

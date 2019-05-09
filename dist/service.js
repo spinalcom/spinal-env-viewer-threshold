@@ -16,20 +16,25 @@ const ENDPOINT_CONTEXT_NAME = ".EndpointThreshold";
 exports.ENDPOINT_CONTEXT_NAME = ENDPOINT_CONTEXT_NAME;
 const ENDPOINT_RELATION = "hasEndpoint";
 exports.ENDPOINT_RELATION = ENDPOINT_RELATION;
+const THRESHOLD_GROUP_CONTEXT = ".ThresholdGroupContext";
+exports.THRESHOLD_GROUP_CONTEXT = THRESHOLD_GROUP_CONTEXT;
 let thresholdService = {
     createThreshold(nodeId, minValue, maxValue) {
-        return this.getThreshold(nodeId).then(threshold => {
-            if (threshold)
+        return this.getThreshold(nodeId).then((threshold) => __awaiter(this, void 0, void 0, function* () {
+            if (threshold) {
+                this.addEndpointToContext(nodeId);
                 return threshold;
+            }
             let newThreshold = new threshold_model_1.default(minValue, maxValue);
             let thresholdNode = spinal_env_viewer_graph_service_1.SpinalGraphService.createNode({
                 name: "threshold",
                 type: "threshold"
             }, newThreshold);
-            spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(nodeId, thresholdNode, RELATION_NAME, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
-            this.createOrGetContext(nodeId);
-            return newThreshold;
-        });
+            return spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(nodeId, thresholdNode, RELATION_NAME, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE).then(() => {
+                this.addEndpointToContext(nodeId);
+                return newThreshold;
+            });
+        }));
     },
     getThreshold(nodeId) {
         return spinal_env_viewer_graph_service_1.SpinalGraphService.getChildren(nodeId, [RELATION_NAME]).then((children) => __awaiter(this, void 0, void 0, function* () {
@@ -43,7 +48,7 @@ let thresholdService = {
             }
         }));
     },
-    createOrGetContext(nodeId) {
+    createOrGetContext() {
         return __awaiter(this, void 0, void 0, function* () {
             let context = yield spinal_env_viewer_graph_service_1.SpinalGraphService.getContext(ENDPOINT_CONTEXT_NAME);
             if (typeof context === "undefined") {
@@ -52,10 +57,22 @@ let thresholdService = {
             return context;
         });
     },
-    addEndpointToContext(contextId, nodeId) {
-        return spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(contextId, nodeId, ENDPOINT_RELATION, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
+    addEndpointToContext(nodeId) {
+        return this.createOrGetContext().then(context => {
+            let contextId = context.info.id.get();
+            spinal_env_viewer_graph_service_1.SpinalGraphService.getChildren(contextId, [ENDPOINT_RELATION]).then(res => {
+                for (let index = 0; index < res.length; index++) {
+                    const elementId = res[index].id.get();
+                    if (elementId === nodeId)
+                        return;
+                }
+                return spinal_env_viewer_graph_service_1.SpinalGraphService.addChild(contextId, nodeId, ENDPOINT_RELATION, spinal_env_viewer_graph_service_1.SPINAL_RELATION_PTR_LST_TYPE);
+            });
+        });
     },
     updateThreshold(nodeId, threshold) {
+        if (!this._isValidThreshold(threshold))
+            throw "Threshold params not valid";
         this.createThreshold(nodeId).then(thresholdToUpdate => {
             // update min
             if (threshold.min.activated) {
@@ -76,6 +93,27 @@ let thresholdService = {
             }
             //end update max
         });
+    },
+    createOrGetThresholdGroupContext() {
+        return spinal_env_viewer_graph_service_1.SpinalGraphService.getContext(THRESHOLD_GROUP_CONTEXT).then((context) => __awaiter(this, void 0, void 0, function* () {
+            if (typeof context !== "undefined")
+                return context;
+            let temp_context = yield spinal_env_viewer_graph_service_1.SpinalGraphService.addContext(THRESHOLD_GROUP_CONTEXT);
+            return temp_context;
+        }));
+    },
+    createThresholdGroup(threshold) { },
+    _isValidThreshold(threshold) {
+        let minIsValid = threshold.hasOwnProperty("min") &&
+            threshold.min.hasOwnProperty("value") &&
+            threshold.min.hasOwnProperty("activated");
+        let maxIsValid = threshold.hasOwnProperty("max") &&
+            threshold.max.hasOwnProperty("value") &&
+            threshold.max.hasOwnProperty("activated");
+        if (minIsValid && maxIsValid) {
+            return true;
+        }
+        return false;
     }
 };
 exports.thresholdService = thresholdService;

@@ -8,11 +8,11 @@ class ThresholdModel extends spinal_core_connectorjs_type_1.Model {
         this.add_attr({
             id: guuid_1.default("Threshold"),
             min: {
-                activated: true,
+                activated: false,
                 value: typeof minValue === "undefined" ? 0 : minValue
             },
             max: {
-                activated: true,
+                activated: false,
                 value: typeof maxValue === "undefined" ? 0 : maxValue
             }
         });
