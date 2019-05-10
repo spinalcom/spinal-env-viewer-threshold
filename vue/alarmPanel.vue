@@ -6,7 +6,7 @@
     <div class="tableContainer">
       <md-table class="tableMd"
                 v-model="alarms"
-                md-sort="alarm.beginDate"
+                md-sort="beginDate"
                 md-fixed-header
                 md-sort-order="asc">
         <!-- <md-table-toolbar>
@@ -23,14 +23,14 @@
                          md-sort-by="name"
                          md-numeric>{{ item.name }}</md-table-cell>
           <md-table-cell md-label="Begin"
-                         md-sort-by="alarm.beginDate">{{ item.alarm.beginDate |
+                         md-sort-by="beginDate">{{ item.beginDate |
             formatDate
             }}</md-table-cell>
           <md-table-cell md-label="End"
-                         md-sort-by="alarm.endDate">{{ item.alarm.endDate |
+                         md-sort-by="endDate">{{ item.endDate |
             formatDate }}</md-table-cell>
           <md-table-cell md-label="type"
-                         md-sort-by="alarm.alarmType">{{ item.alarm.alarmType
+                         md-sort-by="alarmType">{{ item.alarmType
             }}</md-table-cell>
 
         </md-table-row>
@@ -87,7 +87,9 @@ export default {
           this.alarms = res.map(el => {
             return {
               name: el.name,
-              alarm: el.alarm.get()
+              beginDate: el.alarm.beginDate.get().toString(),
+              endDate: el.alarm.endDate.get().toString(),
+              alarmType: el.alarm.alarmType.get().toString()
             };
           });
         });
@@ -96,7 +98,9 @@ export default {
   },
   filters: {
     formatDate: function(value) {
-      let date = new Date(value);
+      let v = parseInt(value);
+
+      let date = new Date(v);
 
       let day = date.getDate();
       let month = date.getMonth();
