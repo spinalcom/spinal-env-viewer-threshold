@@ -55,11 +55,17 @@ export default {
     return {
       endpointNode: null,
       title: null,
-      alarms: []
+      alarms: [],
+      dbIds: [],
+      viewer: null
     };
   },
   methods: {
-    opened(option) {
+    opened(params) {
+      //params is an object {endpointNode, dbIds, viewer}
+      let option = params.endpointNode;
+      this.dbIds = params.dbIds;
+
       this.setTitle(option.name.get());
       this.title = option.name.get();
       this.endpointNode = option;
@@ -121,18 +127,18 @@ export default {
   height: 100%;
 }
 
+.tableContainer {
+  margin-top: 10px;
+  height: 85%;
+  overflow: hidden;
+}
+
 ._title {
   height: 5%;
   text-align: center;
   font-size: 18px;
   padding-top: 8px;
   text-transform: uppercase;
-}
-
-.tableContainer {
-  margin-top: 10px;
-  height: 85%;
-  overflow: hidden;
 }
 
 .tableContainer .tableMd {
