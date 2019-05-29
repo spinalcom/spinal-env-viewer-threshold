@@ -51,4 +51,8 @@ export default class ThresholdModel extends Model {
   }
 }
 
-spinalCore.register_models([ThresholdModel]);
+console.log("name", spinalCore._def[ThresholdModel.name]);
+
+if (typeof spinalCore._def[ThresholdModel.name] === "undefined") {
+  spinalCore.register_models([ThresholdModel]);
+}

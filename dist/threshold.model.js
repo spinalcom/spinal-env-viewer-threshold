@@ -45,5 +45,8 @@ class ThresholdModel extends spinal_core_connectorjs_type_1.Model {
     }
 }
 exports.default = ThresholdModel;
-spinal_core_connectorjs_type_1.spinalCore.register_models([ThresholdModel]);
+console.log("hello", ThresholdModel.constructor.name, spinal_core_connectorjs_type_1.spinalCore._def[ThresholdModel.constructor.name]);
+if (typeof spinal_core_connectorjs_type_1.spinalCore._def["ThresholdModel"] === "undefined") {
+    spinal_core_connectorjs_type_1.spinalCore.register_models([ThresholdModel]);
+}
 //# sourceMappingURL=threshold.model.js.map
